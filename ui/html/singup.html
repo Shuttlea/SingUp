@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Form</title>
+    <link rel="stylesheet" type="text/css" href="/static/google.css">
+</head>
+<body>
+
+    <div class="box">
+        <div class="logo">
+
+        </div>
+    <h2>Sign Up</h2>
+    <!-- <p>Use your Google Account</p> -->
+         <p></p>
+
+    <form method="POST" action="/auth/register" id="form1">
+        <div class="inputBox">
+          <input type="email" name="email" required onkeyup="this.setAttribute('value', this.value);"  value="">
+          <label>Email</label>
+        </div>
+        <div class="inputBox">
+              <input type="text" name="text" required onkeyup="this.setAttribute('value', this.value);" value="">
+              <label>Password</label>
+            </div>
+      </form>
+      <input type="submit" form="form1" value="Sign Up">
+      <!-- <h6 style="color: red;">This email is already exists</h6> -->
+      <h6 style="color: red;">{{.}}</h6>
+
+    </div>
+    <!-- <h6 style="color: red;">some text</h6> -->
+
+</body>
+</html>

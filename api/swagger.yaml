@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: Sing Up / Sing In
+  version: 0.0.1
+servers:
+- url: http://localhost:8080
+paths:
+  /auth/register:
+    post:
+      tags:
+      - Registation and activate
+      summary: Для регистрации по email и паролю
+      description: "Для регистрации пользователя по email и паролю. Когда пользова\
+        тель отправляет данные на этот маршрут, сервер сохраняет их (email и парол\
+        ь) в базе данных и отправляет письмо с JWT токеном на email"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "201":
+          description: Ok
+        "400":
+          description: Bad request
+        "409":
+          description: User with this email is alredy exists
+        "500":
+          description: Internal server error
+  /auth/activate:
+    get:
+      tags:
+      - Registation and activate
+      summary: Для активации аккаунта пользователя
+      description: Активируется из ссылки в письме
+      parameters:
+      - name: token
+        in: query
+        description: "Токен в зашифрованном виде содержит ID пользователя, почту и\
+          \ дату истечения токена (токен валиден 24 часа после регистрации пользов\
+          ателя)"
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      responses:
+        "200":
+          description: Ok
+        "400":
+          description: Bad request
+        "401":
+          description: Token expired or user doesn't exist
+        "409":
+          description: User with this email is already
+components:
+  schemas:
+    User:
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+          example: example@email.com
+        password:
+          type: string
+          example: qwer1234
