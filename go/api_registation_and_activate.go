@@ -22,10 +22,11 @@ import (
 var DB *gorm.DB
 var MC mailer.MailConfig
 
-func InitMailConf(mail, user, pass string) {
+func InitMailConf(mail, user, pass, host string) {
 	MC.Mail = mail
 	MC.User = user
 	MC.Pass = pass
+	MC.Host = host
 }
 
 func AuthActivateGet(w http.ResponseWriter, r *http.Request) {
@@ -80,11 +81,6 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	slog.Debug("Generated", "token", tokenString)
-
-	// DEBUG
-	// a,b := token.MakeToken("adsff")
-	// em, ex, _ := token.VerifyToken(tokenString)
-	// slog.Debug("Decode token", "email", em, "exp", ex, "err", err)
 
 	// encode password for storage
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 14)

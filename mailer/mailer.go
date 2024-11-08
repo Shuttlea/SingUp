@@ -10,6 +10,7 @@ type MailConfig struct {
 	Mail string
 	User string
 	Pass string
+	Host string
 }
 
 func SendVerMail(mc MailConfig, to, token string) error {
@@ -31,7 +32,7 @@ func SendVerMail(mc MailConfig, to, token string) error {
 	for k, v := range header {
 		message += fmt.Sprintf("%s: %s\r\n", k, v)
 	}
-	body := "Для подтверждения электонной почты пройдите по ссылке:<br><br><a href=\"http://localhost:8888/auth/activate?token=" + token + "\">Подтвердить адрес</a>"
+	body := "Для подтверждения электонной почты пройдите по ссылке:<br><br><a href=\"http://"+mc.Host+"/auth/activate?token=" + token + "\">Подтвердить адрес</a>"
 
 	message += "\r\n" + base64.StdEncoding.EncodeToString([]byte(body))
 

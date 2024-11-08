@@ -39,7 +39,7 @@ func main() {
 	defer db.CloseDBConnection(sw.DB)
 
 	// init mail config
-	sw.InitMailConf(cfg.MailBox, cfg.MailUser, cfg.MailPass)
+	sw.InitMailConf(cfg.MailBox, cfg.MailUser, cfg.MailPass, cfg.HostAddr)
 
 	slog.Info("Server started on", "port", cfg.HostAddr)
 	router := sw.NewRouter()
