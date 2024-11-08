@@ -16,15 +16,24 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"singup/mailer"
 	"singup/token"
 )
 
 var DB *gorm.DB
+var MC mailer.MailConfig
+
+func InitMailConf(mail, user, pass string) {
+	MC.Mail = mail
+	MC.User = user
+	MC.Pass = pass
+}
 
 func AuthActivateGet(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "hello from Activate handler!")
+	t := r.URL.Query().Get("token")
+	fmt.Fprint(w, "hello from Activate handler! token:"+t)
 }
 
 func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
@@ -57,12 +66,12 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	slog.Debug("Generated","token",tokenString)
+	slog.Debug("Generated", "token", tokenString)
 
-	// DEBUG 
+	// DEBUG
 	// a,b := token.MakeToken("adsff")
-	em,ex,_ := token.VerifyToken(tokenString)
-	slog.Debug("Decode token","email",em,"exp",ex, "err", err)
+	em, ex, _ := token.VerifyToken(tokenString)
+	slog.Debug("Decode token", "email", em, "exp", ex, "err", err)
 
 	// encode password for storage
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -80,6 +89,15 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// send verification mail
+	err = mailer.SendVerMail(MC, email, tokenString)
+	if err != nil {
+		slog.Error("SendVerMail", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	slog.Debug("Email send successful")
 
 	http.ServeFile(w, r, "./ui/html/check_email.html")
 }

@@ -20,15 +20,26 @@ import (
 
 func main() {
 	// load config
-	cfg := config.InitConfig()
+	cfg, err := config.InitConfig()
+	if err != nil {
+		slog.Error("Config does't load", "error", err)
+		panic(err)
+	}
 	slog.Info("Config loaded", "Parameters", *cfg)
 
 	// set logger level
 	slog.SetLogLoggerLevel(logLevel(cfg.LogLevel))
 
 	// database connect
-	sw.DB = db.ConnectDB(cfg)
+	sw.DB, err = db.ConnectDB(cfg)
+	if err != nil {
+		slog.Error("Can't open database", "error", err)
+		panic(err)
+	}
 	defer db.CloseDBConnection(sw.DB)
+
+	// init mail config
+	sw.InitMailConf(cfg.MailBox, cfg.MailUser, cfg.MailPass)
 
 	slog.Info("Server started on", "port", cfg.HostAddr)
 	router := sw.NewRouter()
