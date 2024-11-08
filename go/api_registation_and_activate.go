@@ -9,7 +9,6 @@
 package swagger
 
 import (
-	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -30,10 +29,24 @@ func InitMailConf(mail, user, pass string) {
 }
 
 func AuthActivateGet(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
 	t := r.URL.Query().Get("token")
-	fmt.Fprint(w, "hello from Activate handler! token:"+t)
+	email, exp, err := token.VerifyToken(t)
+	if err != nil {
+		slog.Error("VerifyToken", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !exp {
+		slog.Debug("AuthActivateGet expired", "token", t)
+	}
+	err = DB.Model(&User{}).Where("email = ?", email).Update("verification", true).Error
+	if err != nil {
+		slog.Error("Updating database", "error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	
+	http.ServeFile(w, r, "./ui/html/ver_success.html")
 }
 
 func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
@@ -70,8 +83,8 @@ func AuthRegisterPost(w http.ResponseWriter, r *http.Request) {
 
 	// DEBUG
 	// a,b := token.MakeToken("adsff")
-	em, ex, _ := token.VerifyToken(tokenString)
-	slog.Debug("Decode token", "email", em, "exp", ex, "err", err)
+	// em, ex, _ := token.VerifyToken(tokenString)
+	// slog.Debug("Decode token", "email", em, "exp", ex, "err", err)
 
 	// encode password for storage
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 14)
