@@ -49,11 +49,11 @@ func NewRouter() *mux.Router {
 func Index(w http.ResponseWriter, r *http.Request) {
 	// http.ServeFile(w, r, "./ui/html/singup.html")
 	tmpl, err := template.ParseFiles("./ui/html/singup.html")
-	if err!= nil{
-		slog.Error("Parse template file","error", err)
+	if err != nil {
+		slog.Error("Parse template file", "error", err)
 		return
 	}
-	tmpl.Execute(w,nil)
+	tmpl.Execute(w, nil)
 }
 
 var routes = Routes{
